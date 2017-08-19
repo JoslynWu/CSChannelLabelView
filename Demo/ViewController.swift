@@ -74,7 +74,6 @@ class ViewController: UIViewController {
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
     func setupUI() {
@@ -96,7 +95,7 @@ class ViewController: UIViewController {
         contentView.showsHorizontalScrollIndicator = false
         contentView.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         contentView.isPagingEnabled = true
-        contentView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: CSViewControllerControllerCellId)
+        contentView.register(CSCollectionViewCell.self, forCellWithReuseIdentifier: CSViewControllerControllerCellId)
         
         labelTitleView.itemDidClickClosure = { [weak self] (index) in
             self?.isLabelTitleDidClick = true
@@ -111,44 +110,36 @@ class ViewController: UIViewController {
         }
         if index == 0 {
             labelTitles.append(String(format: "label%02d", labelTitles.count))
+        } else if index == 1{
+            guard self.labelTitles.count > 1 else {
+                return
+            }
+            self.labelTitles.removeLast()
         } else {
-            
+            var tempArr = [String]()
+            for _ in labelTitles {
+                tempArr.append(randomString(maxCount: 8))
+            }
+            labelTitles = tempArr
         }
+        labelTitleView.refreshTitles(labelTitles)
+        contentView.reloadData()
     }
     
-//    - (void)updateLabelTitleWithIndex:(NSInteger)idx {
-//    if (idx > 2) { return; }
-//    if (idx == 0) {
-//    [self.labelTitles addObject:[NSString stringWithFormat:@"label%02zd",self.labelTitles.count]];
-//    } else if (idx == 1) {
-//    if (self.labelTitles.count <= 1) { return; }
-//    [self.labelTitles removeLastObject];
-//    } else {
-//    NSMutableArray<NSString *> *mArr = [NSMutableArray arrayWithCapacity:self.labelTitles.count];
-//    [self.labelTitles enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-//    [mArr addObject:[self randomStringWithMaxCharCount:8]];
-//    }];
-//    self.labelTitles = mArr;
-//    }
-//    
-//    [self.labelTitleView refreshTitles:self.labelTitles];
-//    [self.contentView reloadData];
-//    }
-//    
-//    - (NSString *)randomStringWithMaxCharCount:(unsigned int)n {
-//    NSString *chars = @"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-//    NSUInteger randomCountN = arc4random_uniform(n) + 1;
-//    NSMutableString *mStr = [NSMutableString stringWithCapacity:randomCountN];
-//    do {
-//    for (NSInteger i = 0; i < randomCountN; i++) {
-//    NSUInteger randomIdx = arc4random_uniform((uint32_t)(chars.length));
-//    NSString *s = [chars substringWithRange:NSMakeRange(randomIdx, 1)];
-//    [mStr appendString:s];
-//    }
-//    } while (mStr.length <= 0);
-//    return mStr.copy;
-//    }
-
+    func randomString(maxCount n: UInt32) -> String {
+        let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        let randomCountN = arc4random_uniform(n) + 1
+        var tempStr = ""
+        repeat {
+            for _ in 0 ..< randomCountN {
+                let randomIdx = arc4random_uniform(UInt32(chars.characters.count))
+                let s = (chars as NSString).substring(with: NSMakeRange(Int(randomIdx), 1))
+                tempStr.append(s)
+            }
+        } while tempStr.characters.count <= 0
+        
+        return tempStr
+    }
 }
 
 
@@ -159,18 +150,19 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CSViewControllerControllerCellId, for: indexPath)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CSViewControllerControllerCellId, for: indexPath) as! CSCollectionViewCell
         cell.contentView.backgroundColor = UIColor.lightGray;
-//        cell.labelTitle = labelTitles[indexPath.item]
-//        cell.didSelectRowClosure = { [weak self] (index, data) in
-//            self?.updateLabelTitle(with: index)
-//        }
+        cell.labelTitle = labelTitles[indexPath.item]
+        cell.didSelectRowClosure = { [weak self] (index, data) in
+            self?.updateLabelTitle(with: index)
+        }
         return cell
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if isLabelTitleDidClick {
-            isLabelTitleDidClick = true
+            isLabelTitleDidClick = false;
+            return;
         }
         let idx = Int((scrollView.contentOffset.x + UIScreen.main.bounds.width * 0.5) / UIScreen.main.bounds.width)
         labelTitleView.selectChannel(index: idx, animationType: .crawl)

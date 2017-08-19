@@ -29,8 +29,6 @@ class CSChannelLabelView: UIView {
         }
         
         clearContainer()
-        adjustMargin()
-        
         self.titles = titles
         
         let maxSize = CGSize(width: frame.width, height: frame.height)
@@ -40,6 +38,8 @@ class CSChannelLabelView: UIView {
             titleWidths.append(w)
             totalWith += w
         }
+        
+        adjustMargin()
         refreshUI()
     }
 
@@ -75,7 +75,7 @@ class CSChannelLabelView: UIView {
     
     var indicatorAnimationType: IndicatorAnimationType = .crawl
     
-    var titleFont: UIFont = UIFont.boldSystemFont(ofSize: 15)
+    var titleFont: UIFont = UIFont.systemFont(ofSize: 15)
     
     var titleColor: UIColor = .darkText
     
@@ -183,7 +183,7 @@ class CSChannelLabelView: UIView {
         middleMargin_tuning = middleMargin
         let expectWith = totalWith + leadingMargin * 2 + middleMargin * Double((titleWidths.count - 1))
 
-        guard (expectWith - Double(mainView.frame.width)) >= leadingMargin else {
+        guard (expectWith - Double(mainView.frame.width)) < leadingMargin else {
             return
         }
         
@@ -192,7 +192,7 @@ class CSChannelLabelView: UIView {
         }
         
         let spaceWith = Double(mainView.frame.width) - totalWith
-        middleMargin_tuning = spaceWith / Double(titleWidths.count - 1) + 2 * scaleOfLMMargin
+        middleMargin_tuning = spaceWith / (Double(titleWidths.count - 1) + 2 * scaleOfLMMargin)
         leadingMargin_tuning = scaleOfLMMargin * middleMargin_tuning
     }
     
@@ -250,7 +250,7 @@ class CSChannelLabelView: UIView {
         let indicator_h = 2.0
         let indicator_w = title_w + adjustWidth4Indicator
         let indicator_y = Double(frame.height) - indicator_h
-        let indicator_x = Double(frame.midX) - indicator_w * 0.5
+        let indicator_x = Double(label.frame.midX) - indicator_w * 0.5
         let rect = CGRect(x: indicator_x, y: indicator_y, width: indicator_w, height: indicator_h)
         
         if animationType == .rubber {
