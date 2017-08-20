@@ -118,6 +118,7 @@
 				TargetAttributes = {
 					9E1FCAD61F3C623200C3CB69 = {
 						CreatedOnToolsVersion = 8.3.3;
+						DevelopmentTeam = ZBKAZS25AB;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -284,6 +285,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = ZBKAZS25AB;
 				INFOPLIST_FILE = "$(SRCROOT)/Demo/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.joslyn.wu.CSChannelLabelView;
@@ -296,6 +298,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = ZBKAZS25AB;
 				INFOPLIST_FILE = "$(SRCROOT)/Demo/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.joslyn.wu.CSChannelLabelView;

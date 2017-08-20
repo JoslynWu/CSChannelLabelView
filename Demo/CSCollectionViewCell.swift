@@ -14,6 +14,7 @@ class CSCollectionViewCell: UICollectionViewCell {
 
     var labelTitle: String? {
         didSet {
+            dataList.removeAll()
             for _ in 0 ..< listCount {
                 dataList.append(labelTitle ?? "")
             }
