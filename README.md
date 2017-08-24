@@ -30,10 +30,12 @@ public func selectChannel(index: Int, animationType: IndicatorAnimationType = de
 - 选择指示器支持多种动画类型
 
 ```
-enum IndicatorAnimationType: Int {
-    case none       // 无动画
-    case slide      // 滑行动画
-    case crawl      // 爬行动画
-    case rubber     // 橡胶动画
+enum IndicatorAnimationType {
+    case none               // 无动画
+    case slide              // 滑行动画
+    case crawl              // 爬行动画
+    case rubber             // 橡胶动画
+    case jump               // 跳跳动画
+    case drop               // 掉落动画
 }
 ```

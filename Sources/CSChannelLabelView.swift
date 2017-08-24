@@ -11,15 +11,17 @@
 
 import UIKit
 
-enum IndicatorAnimationType: Int {
-    case none       // 无动画
-    case slide      // 滑行动画
-    case crawl      // 爬行动画
-    case rubber     // 橡胶动画
+enum IndicatorAnimationType {
+    case none               // 无动画
+    case slide              // 滑行动画
+    case crawl              // 爬行动画
+    case rubber             // 橡胶动画
+    case jump               // 跳跳动画
+    case drop               // 掉落动画
 }
 
 class CSChannelLabelView: UIView {
-
+    
     // MARK: - ------------------ public -------------------
     var itemDidClickClosure: ((Int) -> Void)?
     
@@ -36,13 +38,14 @@ class CSChannelLabelView: UIView {
             let minSize = title.boundingRect(with: maxSize, options: .usesLineFragmentOrigin, attributes: [NSFontAttributeName : titleFont], context: nil).size
             let w = Double(ceil(minSize.width))
             titleWidths.append(w)
+            titleHeight = Double(ceil(minSize.height))
             totalWith += w
         }
         
         adjustMargin()
         refreshUI()
     }
-
+    
     public func selectChannel(index: Int, animationType: IndicatorAnimationType = .crawl) {
         if index >= titleWidths.count || index >= labels.count {
             return
@@ -58,7 +61,7 @@ class CSChannelLabelView: UIView {
         
         autoScrollWithIndex(index: index)
     }
-
+    
     
     // config
     /// 两个label之前的间距，默认0.0
@@ -102,6 +105,7 @@ class CSChannelLabelView: UIView {
     // MARK: - ------------------ private -------------------
     private var titles: Array<String>!
     private var titleWidths = [Double]()
+    private var titleHeight = 0.0;
     private var labels: Array<UILabel> = Array()
     private lazy var mainView: UIScrollView = {
         var mainView: UIScrollView = UIScrollView(frame: self.bounds)
@@ -116,7 +120,7 @@ class CSChannelLabelView: UIView {
         view.backgroundColor = UIColor(white: 0.9, alpha: 1)
         return view
     }()
-
+    
     private lazy var selectIndicator = UIView()
     private var lastSelectLabel: UILabel?
     private var totalWith = 0.0
@@ -176,13 +180,14 @@ class CSChannelLabelView: UIView {
         lastIndex = -1
         totalWith = 0.0
         titleWidths.removeAll()
+        titleHeight = 0.0;
     }
     
     private func adjustMargin() {
         leadingMargin_tuning = leadingMargin
         middleMargin_tuning = middleMargin
         let expectWith = totalWith + leadingMargin * 2 + middleMargin * Double((titleWidths.count - 1))
-
+        
         guard (expectWith - Double(mainView.frame.width)) < leadingMargin else {
             return
         }
@@ -253,31 +258,46 @@ class CSChannelLabelView: UIView {
         let indicator_x = Double(label.frame.midX) - indicator_w * 0.5
         let rect = CGRect(x: indicator_x, y: indicator_y, width: indicator_w, height: indicator_h)
         
-        if animationType == .rubber {
+        switch animationType {
+        case .rubber:
             indicatorRubberAnimation(label: label, targetRect: rect)
-            return
+        case .jump:
+            indicatorJumpAnimation(label: label, targetRect: rect)
+        case .crawl:
+            backIfclickFromSomeIndex(index: index)
+            indicatorCrawlAnimation(label: label, targetRect: rect)
+        case .slide:
+            backIfclickFromSomeIndex(index: index)
+            UIView.animate(withDuration: 0.25, animations: {
+                self.selectIndicator.frame = rect
+            })
+        case .drop:
+            indicatorCurtainAnimation(label: label, targetRect: rect)
+        default:
+            backIfclickFromSomeIndex(index: index)
+            self.selectIndicator.frame = rect
         }
-        
+    }
+    
+    private func backIfclickFromSomeIndex(index: Int) {
         guard lastIndex != index else {
             return
         }
         lastIndex = index
-        
-        if animationType == .crawl {
-            indicatorCrawlAnimation(label: label, targetRect: rect)
-            return
-        }
-        
-        if animationType == .slide {
-            UIView.animate(withDuration: 0.25, animations: { 
-                self.selectIndicator.frame = rect
-            })
-            return
-        }
-        
-        self.selectIndicator.frame = rect
     }
     
+    // MARK: - listion
+    @objc private func channelDidClick(tap: UITapGestureRecognizer) {
+        guard let view = tap.view else {
+            return
+        }
+        if let itemDidClickClosure = itemDidClickClosure {
+            itemDidClickClosure(view.tag)
+        }
+        selectChannel(index: view.tag, animationType: indicatorAnimationType)
+    }
+    
+    // MARK: - animation
     private func indicatorRubberAnimation(label: UILabel, targetRect: CGRect) {
         let scale = 1 - 0.618
         selectIndicator.frame = targetRect
@@ -315,18 +335,22 @@ class CSChannelLabelView: UIView {
         })
     }
     
-    
-    // MARK: - listion
-    @objc private func channelDidClick(tap: UITapGestureRecognizer) {
-        guard let view = tap.view else {
-            return
-        }
-        if let itemDidClickClosure = itemDidClickClosure {
-            itemDidClickClosure(view.tag)
-        }
-        selectChannel(index: view.tag, animationType: indicatorAnimationType)
+    private func indicatorJumpAnimation(label: UILabel, targetRect: CGRect) {
+        let translation_h = ((Double(label.frame.height) - titleHeight) * 0.5 - Double(targetRect.height)) * 0.618
+        selectIndicator.frame = targetRect
+        selectIndicator.transform = CGAffineTransform(translationX: 0, y: -(CGFloat)(translation_h))
+        UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 5, options: [], animations: {
+            self.selectIndicator.transform = CGAffineTransform.identity
+        }, completion: nil)
     }
-
+    
+    private func indicatorCurtainAnimation(label: UILabel, targetRect: CGRect) {
+        self.selectIndicator.frame = CGRect(x: targetRect.minX, y: 0, width: targetRect.width, height: targetRect.height)
+        UIView.animate(withDuration: 0.25, delay: 0.15, usingSpringWithDamping: 0.5, initialSpringVelocity: 5, options: [], animations: {
+            self.selectIndicator.frame = targetRect
+        }, completion: nil)
+    }
+    
 }
 
 // MARK: - ------------------colorTool-------------------

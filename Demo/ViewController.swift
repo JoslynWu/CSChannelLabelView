@@ -23,7 +23,7 @@ class ViewController: UIViewController {
         view.addSubview(labelTitleView)
         labelTitleView.leadingMargin = 15
         labelTitleView.middleMargin = 35
-        labelTitleView.indicatorAnimationType = .rubber
+        labelTitleView.indicatorAnimationType = .drop
         labelTitleView.refreshTitles(labelTitles)
     }
     
