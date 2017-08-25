@@ -88,7 +88,7 @@ class CSChannelLabelView: UIView {
     var otherConfigClosure: ((UILabel) -> Void)?
     
     /// 底部分割线的颜色
-    var separatorColor: UIColor = UIColor.cs_colorWithHexString(hex: "#f3f2f3") {
+    var separatorColor: UIColor = UIColor(white: 0.9, alpha: 1) {
         didSet {
             bottomLine.backgroundColor = separatorColor
         }
@@ -351,31 +351,5 @@ class CSChannelLabelView: UIView {
         }, completion: nil)
     }
     
-}
-
-// MARK: - ------------------colorTool-------------------
-extension UIColor {
-    static func cs_colorWithHexString(hex: String, alpha: CGFloat? = 1.0) -> UIColor {
-        let hexStr = hex.replacingOccurrences(of: "#", with: "") as NSString
-        
-        if hexStr.length != 6 && hexStr.length != 3 {
-            return UIColor.white
-        }
-        
-        let digits = hexStr.length / 3
-        let maxValue: CGFloat = (digits == 1 ? 15.0 : 255.0)
-        
-        let rString = hexStr.substring(with: NSMakeRange(0, digits))
-        let gString = hexStr.substring(with: NSMakeRange(digits, digits))
-        let bString = hexStr.substring(with: NSMakeRange(2 * digits, digits))
-        
-        var r: UInt32 = 0, g: UInt32 = 0, b: UInt32 = 0;
-        
-        Scanner(string: rString).scanHexInt32(&r)
-        Scanner(string: gString).scanHexInt32(&g)
-        Scanner(string: bString).scanHexInt32(&b)
-        
-        return UIColor.init(red: CGFloat(r) / maxValue, green: CGFloat(g) / maxValue, blue: CGFloat(b) / maxValue, alpha: alpha!)
-    }
 }
 
