@@ -63,6 +63,7 @@ class ViewController: UIViewController {
     var contentView: UICollectionView!
     var labelTitles: Array<String> = ["label00", "label01", "label02", "label03"]
     var isLabelTitleDidClick:Bool = false
+    var lastIndex: Int = 0
 
 
     override func viewDidLoad() {
@@ -164,10 +165,14 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource {
             isLabelTitleDidClick = false;
             return;
         }
+
         let idx = Int((scrollView.contentOffset.x + UIScreen.main.bounds.width * 0.5) / UIScreen.main.bounds.width)
+        if lastIndex == idx {
+            return
+        }
         labelTitleView.selectChannel(index: idx, animationType: .crawl)
+        lastIndex = idx
     }
-    
 
 }
 
